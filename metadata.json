@@ -1,0 +1,5 @@
+{
+  "name": "Content Narrator",
+  "description": "AI-powered video narration and PDF analyzer using Gemini 2.5 Flash. Generates audio narrations and concise summaries.",
+  "requestFramePermissions": []
+}
