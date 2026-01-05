@@ -15,9 +15,11 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
   }
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Inicialização segura para evitar erro se process.env não estiver pronto
+const getAI = () => new GoogleGenAI({ apiKey: (window as any).process?.env?.API_KEY || "" });
 
 export const narrateVideoFrames = async (frames: FrameData[], detailLevel: string): Promise<string> => {
+  const ai = getAI();
   const modelId = "gemini-3-flash-preview";
   const prompt = `Gere um roteiro narrativo para o vídeo baseado nestes frames. Nível de detalhe: ${detailLevel}.`;
   return withRetry(async () => {
@@ -36,6 +38,7 @@ export const narrateVideoFrames = async (frames: FrameData[], detailLevel: strin
 };
 
 export const listPdfChapters = async (pdfBase64: string): Promise<string[]> => {
+  const ai = getAI();
   const modelId = "gemini-3-flash-preview";
   const prompt = "Analise o PDF e retorne uma lista com os títulos das seções/capítulos. Responda APENAS um JSON array de strings.";
 
@@ -72,6 +75,7 @@ export const destructurePdfChapter = async (
   totalChapters: number,
   mode: PdfMode
 ): Promise<string> => {
+  const ai = getAI();
   const modelId = "gemini-3-pro-preview";
   
   let modePrompt = "";
@@ -111,8 +115,9 @@ Instruções Adicionais:
 };
 
 export const generateSpeech = async (text: string): Promise<string> => {
+  const ai = getAI();
   const modelId = "gemini-2.5-flash-preview-tts";
-  const safeText = text.substring(0, 3000); // Limite seguro para TTS rápido
+  const safeText = text.substring(0, 3000); 
   return withRetry(async () => {
     const response = await ai.models.generateContent({
       model: modelId,
