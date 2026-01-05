@@ -1,40 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Content Narrator</title>
+    <title>Content Narrator • Streamlit Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8fafc;
-      }
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f5f9;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-      .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #ffffff;
+            color: #31333F;
+            margin: 0;
+        }
+
+        /* Streamlit Sidebar Style */
+        .st-sidebar {
+            background-color: #f0f2f6;
+            border-right: 1px solid #e6e9ef;
+            height: 100vh;
+            width: 300px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+        }
+
+        .st-main {
+            margin-left: 300px;
+            padding: 3rem 5rem;
+            max-width: 1200px;
+        }
+
+        @media (max-width: 768px) {
+            .st-sidebar { width: 100%; height: auto; position: relative; }
+            .st-main { margin-left: 0; padding: 2rem; }
+        }
+
+        .st-card {
+            background: #ffffff;
+            border: 1px solid #e6e9ef;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .st-button-primary {
+            background-color: #ff4b4b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .st-button-primary:hover { opacity: 0.85; }
+        .st-button-primary:disabled { background-color: #f0f2f6; color: #31333f80; cursor: not-allowed; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
     <script>
-      // Shim obrigatório para evitar 'process is not defined' no ambiente do navegador
-      window.process = { env: { API_KEY: "" } };
+        window.process = { env: { API_KEY: "" } };
     </script>
     <script type="importmap">
 {
@@ -50,9 +78,9 @@
   }
 }
 </script>
-  </head>
-  <body>
+</head>
+<body>
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
-  </body>
+</body>
 </html>

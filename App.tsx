@@ -1,97 +1,106 @@
 import React, { useState } from 'react';
 import { VideoProcessor } from './components/VideoProcessor';
 import { PdfProcessor } from './components/PdfProcessor';
-import { Clapperboard, FileText, Info, BrainCircuit } from 'lucide-react';
+import { Clapperboard, FileText, Info, Settings, Layout, Github, ExternalLink } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'video' | 'pdf' | 'about'>('video');
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 py-10 text-center">
-          <div className="inline-flex items-center justify-center p-3 bg-indigo-100 rounded-2xl mb-4 shadow-sm">
-             <Clapperboard className="w-8 h-8 text-indigo-600" />
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Sidebar - O "Coração" do Streamlit */}
+      <aside className="st-sidebar flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="bg-red-500 p-2 rounded-lg">
+              <Layout className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">Content Narrator</h1>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Content Narrator</h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Narrativas visuais com Gemini 2.5 Flash e desestruturação profunda de PDFs com <span className="text-emerald-600 font-bold">Gemini 3 Pro</span>.
+
+          <nav className="space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-2">Ferramentas</p>
+            <button
+              onClick={() => setActiveTab('video')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'video' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`}
+            >
+              <Clapperboard className="w-4 h-4" />
+              Narrar Vídeo
+            </button>
+            <button
+              onClick={() => setActiveTab('pdf')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'pdf' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`}
+            >
+              <FileText className="w-4 h-4" />
+              Destrinchar PDF
+            </button>
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'about' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-600 hover:bg-slate-200'}`}
+            >
+              <Info className="w-4 h-4" />
+              Sobre o App
+            </button>
+          </nav>
+
+          <div className="mt-10">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Configurações Ativas</p>
+            <div className="bg-slate-200/50 rounded-lg p-3 text-[11px] text-slate-500 space-y-2">
+              <div className="flex justify-between"><span>Modelo:</span> <span className="font-bold text-slate-700">Gemini 3 Pro</span></div>
+              <div className="flex justify-between"><span>Audio:</span> <span className="font-bold text-slate-700">Gemini TTS</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-8 border-t border-slate-200">
+           <a href="#" className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition-colors">
+             <Github className="w-4 h-4" /> Ver no GitHub
+           </a>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="st-main flex-1">
+        <header className="mb-10">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            {activeTab === 'video' ? '🎬 Narração de Vídeo com IA' : activeTab === 'pdf' ? '📄 Análise Estruturada de PDF' : 'ℹ️ Sobre o Projeto'}
+          </h2>
+          <p className="text-slate-500">
+            {activeTab === 'video' ? 'Envie um vídeo para gerar roteiros narrativos automáticos.' : activeTab === 'pdf' ? 'Desmonte documentos longos em seções compreensíveis.' : 'Conheça a tecnologia por trás do Content Narrator.'}
           </p>
-        </div>
-        
-        {/* Navigation */}
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex justify-center">
-            <nav className="flex space-x-8" aria-label="Tabs">
-              <button
-                onClick={() => setActiveTab('video')}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-bold text-sm transition-all ${activeTab === 'video' ? 'border-indigo-600 text-indigo-600 scale-105' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-              >
-                <Clapperboard className="w-4 h-4" />
-                Narrar Vídeo
-              </button>
+          <div className="h-1 w-20 bg-red-500 mt-4 rounded-full"></div>
+        </header>
 
-              <button
-                onClick={() => setActiveTab('pdf')}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-bold text-sm transition-all ${activeTab === 'pdf' ? 'border-emerald-600 text-emerald-600 scale-105' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-              >
-                <FileText className="w-4 h-4" />
-                Destrinchar PDF
-              </button>
+        <section className="animate-in fade-in duration-500">
+          {activeTab === 'video' && <VideoProcessor />}
+          {activeTab === 'pdf' && <PdfProcessor />}
+          {activeTab === 'about' && (
+            <div className="st-card prose prose-slate max-w-none">
+              <h3 className="text-xl font-bold mb-4">Tecnologia Multimodal</h3>
+              <p>O <strong>Content Narrator</strong> é uma plataforma experimental que utiliza os modelos de última geração do Google Gemini para processar mídia localmente.</p>
+              
+              <div className="grid md:grid-cols-2 gap-4 my-8">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <h4 className="text-blue-900 font-bold mb-1 flex items-center gap-2 text-sm"><Settings className="w-4 h-4" /> Gemini 3 Flash</h4>
+                  <p className="text-xs text-blue-700">Utilizado para mapeamento rápido de capítulos e análise de frames de vídeo.</p>
+                </div>
+                <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                  <h4 className="text-emerald-900 font-bold mb-1 flex items-center gap-2 text-sm"><ExternalLink className="w-4 h-4" /> Gemini 3 Pro</h4>
+                  <p className="text-xs text-emerald-700">Processamento pesado de texto para garantir densidade de 30%, 50% ou 80% do conteúdo original.</p>
+                </div>
+              </div>
 
-              <button
-                onClick={() => setActiveTab('about')}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-bold text-sm transition-all ${activeTab === 'about' ? 'border-slate-900 text-slate-900 scale-105' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-              >
-                <Info className="w-4 h-4" />
-                Sobre
-              </button>
-            </nav>
-          </div>
-        </div>
-      </div>
+              <h4 className="font-bold mb-2">Segurança de Dados</h4>
+              <p className="text-sm">Todo o processamento de arquivos (extração de frames, leitura de PDFs) ocorre diretamente no seu navegador. Os dados são enviados de forma segura apenas para inferência da IA.</p>
+            </div>
+          )}
+        </section>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {activeTab === 'video' && <VideoProcessor />}
-        {activeTab === 'pdf' && <PdfProcessor />}
-        {activeTab === 'about' && (
-           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 animate-in zoom-in-95 duration-300">
-             <div className="flex items-center gap-3 mb-6">
-               <BrainCircuit className="w-8 h-8 text-indigo-600" />
-               <h2 className="text-2xl font-black text-slate-900">Tecnologia de Ponta</h2>
-             </div>
-             
-             <div className="space-y-6 text-slate-600 leading-relaxed">
-               <div className="grid md:grid-cols-2 gap-8">
-                 <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100">
-                   <h3 className="font-bold text-indigo-900 mb-3 flex items-center gap-2">
-                     <Clapperboard className="w-4 h-4" /> Vídeo (Flash 2.5)
-                   </h3>
-                   <p className="text-sm">Extração de frames locais e análise multimodal instantânea para gerar roteiros de cena.</p>
-                 </div>
-                 
-                 <div className="bg-emerald-50/50 p-6 rounded-xl border border-emerald-100">
-                    <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
-                     <FileText className="w-4 h-4" /> PDF (Pro 3.0)
-                   </h3>
-                    <p className="text-sm">O modo <strong>Detalhado</strong> busca preservar 80% do volume original, realizando uma reescrita narrativa exaustiva do documento.</p>
-                 </div>
-               </div>
-
-               <div className="bg-slate-900 text-slate-100 p-6 rounded-xl">
-                 <h3 className="font-bold mb-3">Privacidade & Performance</h3>
-                 <p className="text-sm opacity-90">Todo o processamento de mídia é feito localmente no seu navegador. Apenas os dados necessários para a análise são enviados via criptografia para os servidores do Google Gemini.</p>
-               </div>
-             </div>
-           </div>
-        )}
+        <footer className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+           <span>Build v2.1.0 • Streamlit Theme</span>
+           <span>Powered by Google GenAI</span>
+        </footer>
       </main>
-      
-      <footer className="text-center text-slate-400 text-xs mt-12 mb-8">
-        <p>Desenvolvido com Google GenAI SDK • 2024</p>
-      </footer>
     </div>
   );
 };
