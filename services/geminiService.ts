@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { FrameData, PdfMode } from "../types";
 
@@ -20,7 +19,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const narrateVideoFrames = async (frames: FrameData[], detailLevel: string): Promise<string> => {
   const modelId = "gemini-3-flash-preview";
-  const prompt = `Analise os frames e gere um roteiro narrativo detalhado. Nível de detalhe: ${detailLevel}.`;
+  const prompt = `Gere um roteiro narrativo para o vídeo baseado nestes frames. Nível de detalhe: ${detailLevel}.`;
   return withRetry(async () => {
     const response = await ai.models.generateContent({
       model: modelId,
@@ -38,7 +37,7 @@ export const narrateVideoFrames = async (frames: FrameData[], detailLevel: strin
 
 export const listPdfChapters = async (pdfBase64: string): Promise<string[]> => {
   const modelId = "gemini-3-flash-preview";
-  const prompt = "Analise este PDF e extraia os títulos de todos os capítulos ou seções principais. Retorne APENAS um array JSON de strings.";
+  const prompt = "Analise o PDF e retorne uma lista com os títulos das seções/capítulos. Responda APENAS um JSON array de strings.";
 
   return withRetry(async () => {
     const response = await ai.models.generateContent({
@@ -75,22 +74,22 @@ export const destructurePdfChapter = async (
 ): Promise<string> => {
   const modelId = "gemini-3-pro-preview";
   
-  let densityInstruction = "";
+  let modePrompt = "";
   if (mode === PdfMode.UltraFast) {
-    densityInstruction = "MISSÃO: Extraia APENAS os 30% mais vitais. Foco em conceitos centrais e conclusões.";
+    modePrompt = "META: Resumo ultra-focado (30% do volume). Extraia apenas o essencial absoluto e conclusões.";
   } else if (mode === PdfMode.Essential) {
-    densityInstruction = "MISSÃO: Preserve 50% do conteúdo. Mantenha a estrutura de argumentos e exemplos principais.";
+    modePrompt = "META: Desestruturação equilibrada (50% do volume). Mantenha todos os argumentos principais e estrutura lógica.";
   } else {
-    densityInstruction = "MISSÃO: Desestruturação PROFUNDA (80% do volume). Transcreva detalhes, nuances e todos os pontos secundários importantes.";
+    modePrompt = "META: Preservação TOTAL (80% do volume). NÃO RESUMA. Expanda cada parágrafo, transcreva detalhes técnicos, nuances e exemplos exaustivamente.";
   }
 
-  const prompt = `Você é um especialista em análise de documentos. Processe a seção "${chapterTitle}" (${chapterIndex + 1}/${totalChapters}).
-${densityInstruction}
+  const prompt = `Você está processando o capítulo "${chapterTitle}" (${chapterIndex + 1} de ${totalChapters}).
+${modePrompt}
 
-REGRAS:
-1. Responda em Markdown.
-2. Use Português do Brasil.
-3. Não resuma se o modo for 80%, expanda conforme o original.`;
+Instruções Adicionais:
+- Responda em Português do Brasil.
+- Use Markdown.
+- Se a meta for 80%, sinta-se à vontade para ser longo e detalhista como o original.`;
 
   return withRetry(async () => {
     const response = await ai.models.generateContent({
@@ -102,9 +101,9 @@ REGRAS:
         ] 
       },
       config: {
-        temperature: mode === PdfMode.Detailed ? 0.7 : 0.4,
+        temperature: mode === PdfMode.Detailed ? 0.9 : 0.5,
         maxOutputTokens: 8192,
-        thinkingConfig: { thinkingBudget: mode === PdfMode.Detailed ? 4000 : 2000 }
+        thinkingConfig: { thinkingBudget: mode === PdfMode.Detailed ? 5000 : 2000 }
       },
     });
     return response.text || "";
@@ -113,12 +112,11 @@ REGRAS:
 
 export const generateSpeech = async (text: string): Promise<string> => {
   const modelId = "gemini-2.5-flash-preview-tts";
-  const charLimit = 5000;
-  const safeText = text.substring(0, charLimit);
+  const safeText = text.substring(0, 3000); // Limite seguro para TTS rápido
   return withRetry(async () => {
     const response = await ai.models.generateContent({
       model: modelId,
-      contents: [{ parts: [{ text: `Narração clara e profissional: ${safeText}` }] }],
+      contents: { parts: [{ text: `Narração profissional: ${safeText}` }] },
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
