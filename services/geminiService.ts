@@ -19,7 +19,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
 export const narrateVideoFrames = async (frames: FrameData[], detailLevel: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const modelId = "gemini-3-flash-preview";
-  const prompt = `Analise estes frames de vídeo e crie um roteiro narrativo envolvente em Português do Brasil. Nível de detalhe: ${detailLevel}.`;
+  const prompt = `Analise estes frames de vídeo e crie um roteiro narrativo envolvente em Português do Brasil. Nível de detalhe: ${detailLevel}. Se o nível for 'detailed', estruture como um roteiro cinematográfico com descrições de cena.`;
   
   return withRetry(async () => {
     const response = await ai.models.generateContent({
@@ -91,15 +91,15 @@ export const destructurePdfChapter = async (
   } else if (mode === PdfMode.Essential) {
     modePrompt = "META: Desestruturação equilibrada (50% do volume original). Preserve a lógica argumentativa e exemplos principais.";
   } else {
-    modePrompt = `META: Preservação detalhada e narrativa. Transforme esta seção em uma estrutura rica de Capítulos e Cenas.
-Para cada subdivisão ou momento importante, estruture da seguinte forma:
-1. **Cena [Número]**: [Título Curto]
-2. **Cenário**: Descreva o ambiente, a atmosfera e o contexto espacial.
-3. **Personagens**: Identifique quem está envolvido e seu provável estado mental/emocional baseado no texto.
-4. **Ação**: Narre o que está acontecendo, os eventos e a progressão do pensamento/argumento.
-5. **Diálogos/Voz**: Transcreva ou infira diálogos e discursos importantes, mantendo a voz do autor ou das figuras citadas.
+    modePrompt = `META: Preservação detalhada e narrativa. Você deve transformar esta seção em uma estrutura rica de Capítulos e Cenas.
+Para cada subdivisão ou momento importante, estruture RIGOROSAMENTE da seguinte forma:
+1. **Cena [Número]**: [Título Curto da Cena]
+2. **Cenário**: Descreva detalhadamente o ambiente, a atmosfera e o contexto espacial baseando-se no texto.
+3. **Personagens**: Identifique quem está envolvido (autores, figuras citadas, entidades) e descreva seu provável estado mental ou intenção.
+4. **Ação**: Narre o que está acontecendo de forma vívida, descrevendo os eventos e a progressão dos argumentos como se fosse um filme.
+5. **Diálogos/Voz**: Transcreva citações diretas ou infira diálogos importantes, mantendo a voz e o tom do autor original.
 
-Seja prolixo e preserve nuances técnicas e dramáticas.`;
+Seja prolixo, dramático e preserve todas as nuances técnicas, transformando dados em narrativa.`;
   }
 
   const prompt = `Você está processando a seção "${chapterTitle}" (${chapterIndex + 1} de ${totalChapters}) do documento fornecido.
@@ -107,8 +107,8 @@ ${modePrompt}
 
 REGRAS:
 1. Responda em Português do Brasil.
-2. Use Markdown estruturado com cabeçalhos claros.
-3. Mantenha a essência técnica mas use um tom narrativo envolvente.`;
+2. Use Markdown estruturado com cabeçalhos claros e negritos para ênfase.
+3. Mantenha a precisão técnica enquanto usa um tom narrativo épico e envolvente.`;
 
   return withRetry(async () => {
     const response = await ai.models.generateContent({

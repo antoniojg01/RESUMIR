@@ -95,11 +95,21 @@ const App: React.FC = () => {
           <div className="h-1.5 w-16 bg-red-500 mt-5 rounded-full"></div>
         </header>
 
-        <section className="animate-in fade-in duration-700">
-          {activeTab === 'video' && <VideoProcessor onFastRead={handleOpenInFastReader} />}
-          {activeTab === 'pdf' && <PdfProcessor onFastRead={handleOpenInFastReader} />}
-          {activeTab === 'fast-reader' && <FastReader initialText={sharedText} />}
-          {activeTab === 'about' && (
+        <section className="relative">
+          {/* Usamos classes 'hidden' para ocultar mas manter os componentes montados no DOM */}
+          <div className={activeTab === 'video' ? 'block animate-in fade-in duration-500' : 'hidden'}>
+            <VideoProcessor onFastRead={handleOpenInFastReader} />
+          </div>
+          
+          <div className={activeTab === 'pdf' ? 'block animate-in fade-in duration-500' : 'hidden'}>
+            <PdfProcessor onFastRead={handleOpenInFastReader} />
+          </div>
+          
+          <div className={activeTab === 'fast-reader' ? 'block animate-in fade-in duration-500' : 'hidden'}>
+            <FastReader initialText={sharedText} />
+          </div>
+          
+          <div className={activeTab === 'about' ? 'block animate-in fade-in duration-500' : 'hidden'}>
             <div className="st-card prose prose-slate max-w-none shadow-sm">
               <h3 className="text-xl font-bold mb-4">Content Narrator v2.5</h3>
               <p>Uma ferramenta projetada para quem precisa consumir grandes volumes de informação em tempo recorde.</p>
@@ -108,7 +118,7 @@ const App: React.FC = () => {
                 <p className="text-sm text-red-800 m-0">Estudos mostram que o maior gargalo da leitura é a sub-vocalização e o movimento dos olhos. O Fast Reader elimina ambos, mantendo o foco no centro da visão.</p>
               </div>
             </div>
-          )}
+          </div>
         </section>
 
         <footer className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-widest">
