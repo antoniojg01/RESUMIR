@@ -25,6 +25,7 @@
             left: 0;
             top: 0;
             padding: 2rem 1.5rem;
+            z-index: 50;
         }
 
         .st-main {
@@ -53,6 +54,10 @@
             border-radius: 0.25rem;
             font-weight: 600;
             transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         .st-button-primary:hover { opacity: 0.85; }
         .st-button-primary:disabled { background-color: #f0f2f6; color: #31333f80; cursor: not-allowed; }
@@ -61,9 +66,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
-    <script>
-        window.process = { env: { API_KEY: "" } };
-    </script>
     <script type="importmap">
 {
   "imports": {
