@@ -7,6 +7,12 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
   } catch (error: any) {
     console.error("Erro na API Gemini:", error);
     const status = error?.status || 500;
+    
+    // Se o erro for de entidade não encontrada ou permissão, pode ser a chave
+    if (error?.message?.includes("Requested entity was not found")) {
+      throw new Error("Sua chave de API parece não ter acesso a este modelo. Verifique se o faturamento está ativado no Google AI Studio.");
+    }
+
     const isRetryable = status === 429 || status === 503 || status === 500;
     if (retries > 0 && isRetryable) {
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -17,6 +23,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
 }
 
 export const narrateVideoFrames = async (frames: FrameData[], detailLevel: string): Promise<string> => {
+  // Cria instância nova a cada chamada para garantir o uso do process.env.API_KEY atualizado
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const modelId = "gemini-3-flash-preview";
   const prompt = `Analise estes frames de vídeo e crie um roteiro narrativo envolvente em Português do Brasil. Nível de detalhe: ${detailLevel}. Se o nível for 'detailed', estruture como um roteiro cinematográfico com descrições de cena.`;
