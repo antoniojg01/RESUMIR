@@ -1,106 +1,17 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { VideoProcessor } from './components/VideoProcessor';
 import { PdfProcessor } from './components/PdfProcessor';
 import { FastReader } from './components/FastReader';
-import { Clapperboard, FileText, Info, Settings, Layout, Github, Zap, Gauge, Key, ExternalLink, AlertCircle } from 'lucide-react';
-
-// Adjusted declaration to match the existing AIStudio type provided by the environment
-declare global {
-  interface Window {
-    aistudio: AIStudio;
-  }
-}
+import { Clapperboard, FileText, Info, Layout, Zap, Gauge } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'video' | 'pdf' | 'fast-reader' | 'about'>('video');
   const [sharedText, setSharedText] = useState('');
-  const [isKeySelected, setIsKeySelected] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkKey = async () => {
-      try {
-        if (window.aistudio) {
-          const hasKey = await window.aistudio.hasSelectedApiKey();
-          setIsKeySelected(hasKey);
-        } else {
-          // Fallback para ambientes onde a chave já vem injetada diretamente
-          setIsKeySelected(!!process.env.API_KEY);
-        }
-      } catch (e) {
-        setIsKeySelected(!!process.env.API_KEY);
-      }
-    };
-    checkKey();
-  }, []);
-
-  const handleOpenSelectKey = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
-      // Assume sucesso após o clique conforme as regras de race condition
-      setIsKeySelected(true);
-    }
-  };
 
   const handleOpenInFastReader = (text: string) => {
     setSharedText(text);
     setActiveTab('fast-reader');
   };
-
-  // Enquanto verifica a chave, mostra um estado neutro
-  if (isKeySelected === null) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Iniciando Core...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Se a chave não estiver selecionada, mostra o Gateway
-  if (!isKeySelected) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="st-card max-w-md w-full shadow-2xl border-t-4 border-t-red-500 p-10 text-center animate-in fade-in zoom-in duration-300">
-          <div className="bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-            <Key className="w-10 h-10 text-red-500" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Configuração Necessária</h2>
-          <p className="text-slate-600 mb-8 text-sm leading-relaxed">
-            Para utilizar os modelos <strong>Gemini 3 Pro</strong> e <strong>Flash</strong> em sua capacidade total, você precisa selecionar uma chave de API vinculada a um projeto com faturamento ativo.
-          </p>
-          
-          <div className="space-y-4">
-            <button
-              onClick={handleOpenSelectKey}
-              className="st-button-primary w-full h-14 text-lg"
-            >
-              <Key className="w-5 h-5" />
-              Configurar Chave de API
-            </button>
-            
-            <a 
-              href="https://ai.google.dev/gemini-api/docs/billing" 
-              target="_blank" 
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"
-            >
-              Documentação de Faturamento <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
-
-          <div className="mt-10 p-4 bg-amber-50 rounded-lg border border-amber-100 flex items-start gap-3 text-left">
-            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-amber-700 font-medium">
-              Nota: A chave é armazenada de forma segura pela plataforma. O aplicativo não tem acesso direto à sua chave privada.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
@@ -155,14 +66,14 @@ const App: React.FC = () => {
             <div className="bg-slate-200/50 rounded-lg p-3 text-[11px] text-slate-500 space-y-2">
               <div className="flex justify-between"><span>IA Core:</span> <span className="text-emerald-600 font-bold">Online</span></div>
               <div className="flex justify-between"><span>TTS Engine:</span> <span className="text-emerald-600 font-bold">Online</span></div>
-              <div className="flex justify-between"><span>Chave:</span> <span className="text-emerald-600 font-bold">Ativa</span></div>
+              <div className="flex justify-between"><span>API Key:</span> <span className="text-emerald-600 font-bold">Ativa</span></div>
             </div>
           </div>
         </div>
 
         <div className="pt-8 border-t border-slate-200">
            <a href="https://ai.google.dev" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-slate-400 hover:text-red-500 transition-colors font-bold uppercase tracking-tighter">
-             <Gauge className="w-4 h-4" /> Gemini Pro 3 API
+             <Gauge className="w-4 h-4" /> Gemini 3 AI Core
            </a>
         </div>
       </aside>
@@ -186,6 +97,7 @@ const App: React.FC = () => {
         </header>
 
         <section className="relative">
+          {/* Mantém componentes montados para preservar estado ao trocar abas */}
           <div className={activeTab === 'video' ? 'block animate-in fade-in duration-500' : 'hidden'}>
             <VideoProcessor onFastRead={handleOpenInFastReader} />
           </div>

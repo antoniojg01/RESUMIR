@@ -1,6 +1,9 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { FrameData, PdfMode } from "../types";
 
+// Função utilitária para obter a instância do SDK com a chave atualizada
+const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Promise<T> {
   try {
     return await fn();
@@ -8,9 +11,8 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
     console.error("Erro na API Gemini:", error);
     const status = error?.status || 500;
     
-    // Se o erro for de entidade não encontrada ou permissão, pode ser a chave
-    if (error?.message?.includes("Requested entity was not found")) {
-      throw new Error("Sua chave de API parece não ter acesso a este modelo. Verifique se o faturamento está ativado no Google AI Studio.");
+    if (error?.message?.includes("API Key must be set")) {
+      throw new Error("A chave de API não foi detectada no ambiente. Certifique-se de que process.env.API_KEY está configurado.");
     }
 
     const isRetryable = status === 429 || status === 503 || status === 500;
@@ -23,8 +25,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Pr
 }
 
 export const narrateVideoFrames = async (frames: FrameData[], detailLevel: string): Promise<string> => {
-  // Cria instância nova a cada chamada para garantir o uso do process.env.API_KEY atualizado
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAI();
   const modelId = "gemini-3-flash-preview";
   const prompt = `Analise estes frames de vídeo e crie um roteiro narrativo envolvente em Português do Brasil. Nível de detalhe: ${detailLevel}. Se o nível for 'detailed', estruture como um roteiro cinematográfico com descrições de cena.`;
   
@@ -47,7 +48,7 @@ export const narrateVideoFrames = async (frames: FrameData[], detailLevel: strin
 };
 
 export const listPdfChapters = async (pdfBase64: string): Promise<string[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAI();
   const modelId = "gemini-3-flash-preview";
   const prompt = "Analise este PDF e extraia uma lista dos títulos de todos os capítulos ou seções principais. Responda APENAS um JSON array de strings contendo os títulos.";
 
@@ -89,7 +90,7 @@ export const destructurePdfChapter = async (
   totalChapters: number,
   mode: PdfMode
 ): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAI();
   const modelId = "gemini-3-pro-preview";
   
   let modePrompt = "";
@@ -104,9 +105,7 @@ Para cada subdivisão ou momento importante, estruture RIGOROSAMENTE da seguinte
 2. **Cenário**: Descreva detalhadamente o ambiente, a atmosfera e o contexto espacial baseando-se no texto.
 3. **Personagens**: Identifique quem está envolvido (autores, figuras citadas, entidades) e descreva seu provável estado mental ou intenção.
 4. **Ação**: Narre o que está acontecendo de forma vívida, descrevendo os eventos e a progressão dos argumentos como se fosse um filme.
-5. **Diálogos/Voz**: Transcreva citações diretas ou infira diálogos importantes, mantendo a voz e o tom do autor original.
-
-Seja prolixo, dramático e preserve todas as nuances técnicas, transformando dados em narrativa.`;
+5. **Diálogos/Voz**: Transcreva citações diretas ou infira diálogos importantes, mantendo a voz e o tom do autor original.`;
   }
 
   const prompt = `Você está processando a seção "${chapterTitle}" (${chapterIndex + 1} de ${totalChapters}) do documento fornecido.
@@ -142,10 +141,8 @@ REGRAS:
 export const generateSpeech = async (text: string): Promise<string> => {
   if (!text || text.trim().length === 0) return "";
   
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAI();
   const modelId = "gemini-2.5-flash-preview-tts";
-  
-  // Limpando markdown para o TTS não ler caracteres especiais como asteriscos
   const cleanText = text.replace(/[*#_~`>]/g, '').substring(0, 3000);
   
   return withRetry(async () => {
